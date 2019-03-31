@@ -73,10 +73,10 @@ function get_xpath_of {
   $javascript_generated_css_selector_of_element = get_css_selector_of ([ref] $element)
 
 .LINK
-  # http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed	
+  # http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
 
 .NOTES
-  TODO: http://joseoncode.com/2011/11/24/sharing-powershell-modules-easily/	
+  TODO: http://joseoncode.com/2011/11/24/sharing-powershell-modules-easily/
   VERSION HISTORY
   2015/06/07 Initial Version
 #>
@@ -436,7 +436,8 @@ function find_element {
     [Parameter(ParameterSetName = 'set_linktext')] $link_text,
     [Parameter(ParameterSetName = 'set_partial_link_text')] $partial_link_text,
     [Parameter(ParameterSetName = 'set_tagname')] $tag_name,
-    [Parameter(ParameterSetName = 'set_classname')] $classname
+    [Parameter(ParameterSetName = 'set_classname')] $classname,
+    [Parameter()]$selenium
   )
 
 
@@ -661,7 +662,7 @@ function find_elements {
     $element = find_page_element_by_xpath -selenium_ref ([ref]$selenium) -xpath 'span[@class="currentprice"]'
     $result = find_via_closest -ancestor_locator 'form' -target_element_locator 'input[type="submit"]' -element_ref ([ref]$element)
   The result is equal to 'Add to Card'
-.LINK	
+.LINK
   https://habr.com/company/ruvds/blog/416539/ (Russian)
   https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
 .NOTES

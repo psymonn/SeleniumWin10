@@ -2,7 +2,7 @@
 
 #cd "f:\GitHub\Source\powershell_selenium\powershell\"
 # File Test.ps1:
-Import-Module -Name .\SeleniumWin10.psd1 -Force
+#Import-Module -Name .\SeleniumWin10.psd1 -Force
 #import-module -name .\selenium_common.psm1 -force
 
 $VerbosePreference = 'continue'
@@ -16,4 +16,7 @@ $VerbosePreference = 'continue'
 #.\freelancer_search.ps1 "ie" -password "hello"
 
 #launch_selenium
-./canvas_actions.ps1 "firefox"
+#./canvas_actions.ps1 "firefox"
+#./booking_com_search.ps1 "firefox"
+#./refresh_windows_key.ps1 "firefox"
+./keynote_s1.ps1 -password "noee"

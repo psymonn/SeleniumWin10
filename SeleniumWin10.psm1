@@ -1,5 +1,47 @@
 <#
 .SYNOPSIS
+	Loads calller-provided list of .net assembly dlls or fails with a custom exception
+
+.DESCRIPTION
+	Loads calller-provided list of .net assembly dlls or fails with a custom exception
+.EXAMPLE
+	load_shared_assemblies -shared_assemblies_path 'c:\tools' -shared_assemblies @('WebDriver.dll','WebDriver.Support.dll','nunit.framework.dll')
+.LINK
+
+
+.NOTES
+
+	VERSION HISTORY
+	2015/06/22 Initial Version
+#>
+
+      [string]$shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
+      [string[]]$shared_assemblies = @(
+        'WebDriver.dll',
+        'WebDriver.Support.dll',
+        'Newtonsoft.Json.dll'
+        #'nunit.core.dll',
+        #'nunit.framework.dll'
+        )
+
+
+    $env:SHARED_ASSEMBLIES_PATH = $shared_assemblies_path
+
+    $shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
+    pushd $shared_assemblies_path
+    $shared_assemblies | ForEach-Object {
+
+     if ($host.Version.Major -gt 2){
+       Unblock-File -Path $_;
+     }
+     write-output $_
+     Add-Type -Path $_
+     }
+    popd
+
+
+<#
+.SYNOPSIS
 	Start Selenium
 .DESCRIPTION
 	Start Selenium
@@ -24,22 +66,15 @@ function launch_selenium {
         [switch]$grid,
         [switch]$headless,
         [int]$version,
-        [string]$shared_assemblies_path = 'C:\Data\Git\Selenium\lib40\',
-        [string[]]$shared_assemblies = @(
-            'WebDriver.dll',
-            'WebDriver.Support.dll'
-            #'nunit.core.dll',
-            #'Newtonsoft.Json.dll',
-            #'nunit.framework.dll'
-        ),
         [string]$hub_host = '127.0.0.1',
         [string]$hub_port = '4444',
         [bool]$use_remote_driver = $false,
         [switch]$debug
     )
-  
-    $script:selenium_path = 'C:\Data\Git\Selenium\lib40\'
-    
+
+
+    $script:selenium_path = 'F:\Data\Git\Selenium\lib40\'
+
     # Write-Debug (Get-ScriptDirectory)
     $use_remote_driver = [bool]$PSBoundParameters['grid'].IsPresent
     # Write-Debug (Get-ScriptDirectory)
@@ -47,18 +82,18 @@ function launch_selenium {
     if ($run_headless) {
         write-debug 'launch_selenium: Running headless'
     }
-      
+
     # SELENIUM_DRIVERS_PATH environment overrides parameter, for Team City
     #$selenium_path =  'c:\java\selenium'
     if (($env:SELENIUM_PATH -ne $null) -and ($env:SELENIUM_PATH -ne '')) {
         $script:selenium_path = $env:SELENIUM_PATH
     }
-  
+
     # SHARED_ASSEMBLIES_PATH environment overrides parameter, for Team City/Jenkins
     if (($env:SHARED_ASSEMBLIES_PATH -ne $null) -and ($env:SHARED_ASSEMBLIES_PATH -ne '')) {
         $shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
     }
-  
+
     #$selenium_drivers_path = 'c:\java\selenium'
     # SELENIUM_DRIVERS_PATH environment overrides parameter, for Team City/Jenkinks
     if (($env:SELENIUM_DRIVERS_PATH -ne $null) -and ($env:SELENIUM_DRIVERS_PATH -ne '')) {
@@ -67,10 +102,11 @@ function launch_selenium {
     elseif (($env:SELENIUM_PATH -ne $null) -and ($env:SELENIUM_PATH -ne '')) {
         $script:selenium_path = $env:SELENIUM_PATH
     }
-  
+
     # write-Debug "load_shared_assemblies -shared_assemblies_path ${shared_assemblies_path} -shared_assemblies ${shared_assemblies}"
     # start-sleep -milliseconds 1000
-    load_shared_assemblies -shared_assemblies_path $shared_assemblies_path -shared_assemblies $shared_assemblies
+
+   # load_shared_assemblies -shared_assemblies_path $shared_assemblies_path -shared_assemblies $shared_assemblies
 
 
     $uri = [System.Uri](('http://{0}:{1}/wd/hub' -f $hub_host, $hub_port))
@@ -83,7 +119,7 @@ function launch_selenium {
         }
     }
 
-    $selenium = $null
+    $driver = $null
     if ($browser -ne $null -and $browser -ne '') {
         if ($use_remote_driver) {
 
@@ -139,28 +175,45 @@ function launch_selenium {
                 $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver ($firefox_options)
             }
             else {
-                $driver_environment_variable = 'webdriver.gecko.driver'
-                if (-not [Environment]::GetEnvironmentVariable($driver_environment_variable, [System.EnvironmentVariableTarget]::Machine)) {
-                     [Environment]::SetEnvironmentVariable( $driver_environment_variable, "${script:selenium_path}\geckodriver.exe")
-                    #[Environment]::SetEnvironmentVariable( $driver_environment_variable, "C:\java\selenium\geckodriver.exe")
-                }
-                #  $capability = [OpenQA.Selenium.Remote.DesiredCapabilities]::Firefox()
+                # $driver_environment_variable = 'webdriver.gecko.driver'
+                # if (-not [Environment]::GetEnvironmentVariable($driver_environment_variable, [System.EnvironmentVariableTarget]::Machine)) {
+                #      [Environment]::SetEnvironmentVariable( $driver_environment_variable, "${script:selenium_path}\geckodriver.exe")
+                #     #[Environment]::SetEnvironmentVariable( $driver_environment_variable, "F:\Data\Git\Selenium\lib40\geckodriver.exe")
+                # }
+                # #  $capability = [OpenQA.Selenium.Remote.DesiredCapabilities]::Firefox()
 
-                [object]$profile_manager = New-Object OpenQA.Selenium.Firefox.FirefoxProfileManager
+                # [object]$profile_manager = New-Object OpenQA.Selenium.Firefox.FirefoxProfileManager
+                # #[OpenQA.Selenium.Firefox.FirefoxProfile[]]$profiles = $profile_manager.ExistingProfiles[1]
+                # #$profile = Join-Path $PSScriptRoot "Assets\ff-profile\rust_mozprofile.YwpEBLY3hCRX"
+                # $profile = [OpenQA.Selenium.Firefox.FirefoxProfile]::new("xyzProfile")
 
-                [OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = $profile_manager.GetProfile($profile)
-                [OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = New-Object OpenQA.Selenium.Firefox.FirefoxProfile ($profile)
-                #  $selected_profile_object.setPreference('general.useragent.override',"Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/34.0")
+                # [OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = $profile_manager.GetProfile($profile)
+                # [OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = New-Object OpenQA.Selenium.Firefox.FirefoxProfile ($profile)
+                # #  $selected_profile_object.setPreference('general.useragent.override',"Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/34.0")
 
-                # https://code.google.com/p/selenium/issues/detail?id=40
+                # # https://code.google.com/p/selenium/issues/detail?id=40
 
-                $selected_profile_object.setPreference('browser.cache.disk.enable', $false)
-                $selected_profile_object.setPreference('browser.cache.memory.enable', $false)
-                $selected_profile_object.setPreference('browser.cache.offline.enable', $false)
-                $selected_profile_object.setPreference('network.http.use-cache', $false)
+                # $selected_profile_object.setPreference('browser.cache.disk.enable', $false)
+                # $selected_profile_object.setPreference('browser.cache.memory.enable', $false)
+                # $selected_profile_object.setPreference('browser.cache.offline.enable', $false)
+                # $selected_profile_object.setPreference('network.http.use-cache', $false)
+                #$selected_profile_object.setPreference('FirefoxBinaryPath', "F:\Data\Git\Selenium\lib40\geckodriver.exe")
 
-                $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver ($selected_profile_object)
-                [OpenQA.Selenium.Firefox.FirefoxProfile[]]$profiles = $profile_manager.ExistingProfiles
+                 #$selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver ($selected_profile_object)
+               #$driver = New-Object OpenQA.Selenium.Firefox.FirefoxDriver;
+
+               $selenium= New-Object -TypeName "OpenQA.Selenium.Firefox.FirefoxDriver"
+               $selenium.Manage().Timeouts().ImplicitWait = [TimeSpan]::FromSeconds(10)
+
+
+               #$Driver = New-Object -TypeName "OpenQA.Selenium.Firefox.FirefoxDriver"
+             #  $selenium.Manage().Timeouts().ImplicitWait = [TimeSpan]::FromSeconds(10)
+
+            #   $base_url = "http://www.google.com"
+
+              # $selenium.Navigate().GoToUrl($base_url)
+
+                #[OpenQA.Selenium.Firefox.FirefoxProfile[]]$profiles = $profile_manager.ExistingProfiles
 
                 # [NUnit.Framework.Assert]::IsInstanceOfType($profiles , new-object System.Type( FirefoxProfile[]))
                 # [NUnit.Framework.StringAssert]::AreEqualIgnoringCase($profiles.GetType().ToString(),'OpenQA.Selenium.Firefox.FirefoxProfile[]')
@@ -249,49 +302,38 @@ function launch_selenium {
             throw "unknown browser choice:${browser}"
         }
     }
-    return $selenium
+    $selenium
 }
+
 <#
 .SYNOPSIS
-	Loads calller-provided list of .net assembly dlls or fails with a custom exception
-	
+	Stops Selenium
 .DESCRIPTION
-	Loads calller-provided list of .net assembly dlls or fails with a custom exception
+	Stops Selenium
+
 .EXAMPLE
-	load_shared_assemblies -shared_assemblies_path 'c:\tools' -shared_assemblies @('WebDriver.dll','WebDriver.Support.dll','nunit.framework.dll')
+    cleanup ([ref]$selenium)
+    Will tell selenium to stop the browser window
 .LINK
-	
-	
+
+
 .NOTES
 
 	VERSION HISTORY
-	2015/06/22 Initial Version
+	2015/06/07 Initial Version
 #>
 
-function load_shared_assemblies {
 
+function cleanup {
     param(
-      [string]$shared_assemblies_path = 'C:\Data\Git\Selenium\lib40\',
-      [string[]]$shared_assemblies = @(
-        'WebDriver.dll',
-        'WebDriver.Support.dll',
-        'Newtonsoft.Json.dll'
-        #'nunit.core.dll',
-        #'nunit.framework.dll'
-        )
+      [System.Management.Automation.PSReference]$selenium_ref
     )
-  
-    $env:SHARED_ASSEMBLIES_PATH = $shared_assemblies_path
-  
-    $shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
-    pushd $shared_assemblies_path
-    $shared_assemblies | ForEach-Object {
-  
-     if ($host.Version.Major -gt 2){
-       Unblock-File -Path $_;
-     }
-     write-output $_
-     Add-Type -Path $_
-     }
-    popd
-}
+    try {
+      $selenium_ref.Value.Close()
+      $selenium_ref.Value.Quit()
+    } catch [exception]{
+      # Ignore errors if unable to close the browser
+      Write-Output (($_.Exception.Message) -split "`n")[0]
+
+    }
+  }
