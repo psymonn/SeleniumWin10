@@ -3,15 +3,15 @@
 	Determines script directory
 .DESCRIPTION
 	Determines script directory
-	
+
 .EXAMPLE
 	$script_directory = Get-ScriptDirectory
 
 .LINK
-	# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed	
-	
+	# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
+
 .NOTES
-	TODO: http://joseoncode.com/2011/11/24/sharing-powershell-modules-easily/	
+	TODO: http://joseoncode.com/2011/11/24/sharing-powershell-modules-easily/
 	VERSION HISTORY
 	2015/06/07 Initial Version
 #>
@@ -64,7 +64,7 @@ function Get-ScriptDirectory
 	Start Selenium
 .DESCRIPTION
 	Start Selenium
-	
+
 .EXAMPLE
     $selenium = launch_selenium -browser 'chrome' -hub_host -hub_port
     Will launch the selenium java hub and slave locally using batch commands or will connect to remote host and port
@@ -72,7 +72,7 @@ function Get-ScriptDirectory
     Will launch chrome in headless mode via the selenium driver, chromedriver
 .LINK
 
-	
+
 .NOTES
 	VERSION HISTORY
 	2015/06/07 Initial Version
@@ -358,7 +358,7 @@ which can be collaptsed into
           # https://stackoverflow.com/questions/45130993/how-to-start-chromedriver-in-headless-mode
           $options.addArguments([System.Collections.Generic.List[string]]@('--headless',"--window-size=${width}x${height}", '-disable-gpu'))
         } else {
-	# TODO: makse configurable through a switch 
+	# TODO: makse configurable through a switch
        #   $options.addArguments('start-maximized')
           # no-op option - re-enforcing the default setting
           $options.addArguments(('user-data-dir={0}' -f ("${env:LOCALAPPDATA}\Google\Chrome\User Data" -replace '\\','/')))
@@ -432,13 +432,13 @@ which can be collaptsed into
 	Stops Selenium
 .DESCRIPTION
 	Stops Selenium
-	
+
 .EXAMPLE
     cleanup ([ref]$selenium)
     Will tell selenium to stop the browser window
 .LINK
-	
-	
+
+
 .NOTES
 
 	VERSION HISTORY
@@ -460,24 +460,25 @@ function cleanup {
   }
 }
 
+
+
 <#
 .SYNOPSIS
 	Pauses the Selenium execution
 .DESCRIPTION
 	Pauses the Selenium execution
-	
+
 .EXAMPLE
 	custom_pause [-fullstop]
 
 .LINK
-	
-	
+
+
 .NOTES
 
 	VERSION HISTORY
 	2015/06/21 Initial Version
 #>
-
 
 function custom_pause {
   param([bool]$fullstop)
@@ -499,13 +500,13 @@ function custom_pause {
 	Sets default timeouts with current Selenium session
 .DESCRIPTION
 	Sets default timeouts with current Selenium session
-	
+
 .EXAMPLE
     set_timeouts ([ref]$selenium) [-exlicit <explicit timeout>] [-page_load <page load timeout>] [-script <script timeout>]
 
 .LINK
-	
-	
+
+
 .NOTES
 
 	VERSION HISTORY
@@ -529,14 +530,14 @@ function set_timeouts {
 <#
 .SYNOPSIS
 	Loads calller-provided list of .net assembly dlls or fails with a custom exception
-	
+
 .DESCRIPTION
 	Loads calller-provided list of .net assembly dlls or fails with a custom exception
 .EXAMPLE
 	load_shared_assemblies -shared_assemblies_path 'c:\tools' -shared_assemblies @('WebDriver.dll','WebDriver.Support.dll','nunit.framework.dll')
 .LINK
-	
-	
+
+
 .NOTES
 
 	VERSION HISTORY
@@ -578,12 +579,12 @@ function load_shared_assemblies {
 .DESCRIPTION
 	Loads caller-specified list of .net assembly dll/ versions.
   Fails with a custom exception when a paricular assembly is of the wrong version
-	
+
 .EXAMPLE
 	load_shared_assemblies_with_versions -shared_assemblies_path 'c:\tools'
 .LINK
-	
-	
+
+
 .NOTES
 
 	VERSION HISTORY
@@ -653,14 +654,14 @@ findstr /ic:"`$selenium " *.ps1
 .SYNOPSIS
 	Common method to read installed program installlocation information
 .DESCRIPTION
-	
-	
+
+
 .EXAMPLE
 	$sqlite_installlocation_path = read_registry -registry_path '/SOFTWARE/Microsoft/Windows/CurrentVersion/Uninstall/' -package_name 'System.Data.SQLite'
 	$sqlite_assemblies_path = [System.IO.Path]::Combine($sqlite_installlocation_path,'bin')
 .LINK
-	
-	
+
+
 .NOTES
 
 	VERSION HISTORY
@@ -725,7 +726,7 @@ function read_installed_programs_registry {
 .DESCRIPTION
 	Based on: https://gallery.technet.microsoft.com/scriptcenter/A-PowerShell-Assert-d383bf14
 	With pipeline support removed
-		
+
 .EXAMPLE
 		assert_true (1 -eq 0)
 .NOTES

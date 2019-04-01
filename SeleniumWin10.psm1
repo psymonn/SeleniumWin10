@@ -8,36 +8,35 @@
 	load_shared_assemblies -shared_assemblies_path 'c:\tools' -shared_assemblies @('WebDriver.dll','WebDriver.Support.dll','nunit.framework.dll')
 .LINK
 
-
 .NOTES
 
 	VERSION HISTORY
 	2015/06/22 Initial Version
 #>
 
-      [string]$shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
-      [string[]]$shared_assemblies = @(
-        'WebDriver.dll',
-        'WebDriver.Support.dll',
-        'Newtonsoft.Json.dll'
-        #'nunit.core.dll',
-        #'nunit.framework.dll'
-        )
+[string]$script:shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
+[string[]]$shared_assemblies = @(
+  'WebDriver.dll',
+  'WebDriver.Support.dll',
+  'Newtonsoft.Json.dll'
+  #'nunit.core.dll',
+  #'nunit.framework.dll'
+  )
 
 
-    $env:SHARED_ASSEMBLIES_PATH = $shared_assemblies_path
+$env:SHARED_ASSEMBLIES_PATH = $script:shared_assemblies_path
 
-    $shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
-    pushd $shared_assemblies_path
-    $shared_assemblies | ForEach-Object {
+$script:shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
+pushd $script:shared_assemblies_path
+$shared_assemblies | ForEach-Object {
 
-     if ($host.Version.Major -gt 2){
-       Unblock-File -Path $_;
-     }
-     write-output $_
-     Add-Type -Path $_
-     }
-    popd
+  if ($host.Version.Major -gt 2){
+    Unblock-File -Path $_;
+  }
+  write-output $_
+  Add-Type -Path $_
+  }
+popd
 
 
 <#
@@ -68,12 +67,9 @@ function launch_selenium {
         [int]$version,
         [string]$hub_host = '127.0.0.1',
         [string]$hub_port = '4444',
-        [bool]$use_remote_driver = $false,
         [switch]$debug
     )
-
-
-    $script:selenium_path = 'F:\Data\Git\Selenium\lib40\'
+    [string]$script:shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
 
     # Write-Debug (Get-ScriptDirectory)
     $use_remote_driver = [bool]$PSBoundParameters['grid'].IsPresent
@@ -82,32 +78,6 @@ function launch_selenium {
     if ($run_headless) {
         write-debug 'launch_selenium: Running headless'
     }
-
-    # SELENIUM_DRIVERS_PATH environment overrides parameter, for Team City
-    #$selenium_path =  'c:\java\selenium'
-    if (($env:SELENIUM_PATH -ne $null) -and ($env:SELENIUM_PATH -ne '')) {
-        $script:selenium_path = $env:SELENIUM_PATH
-    }
-
-    # SHARED_ASSEMBLIES_PATH environment overrides parameter, for Team City/Jenkins
-    if (($env:SHARED_ASSEMBLIES_PATH -ne $null) -and ($env:SHARED_ASSEMBLIES_PATH -ne '')) {
-        $shared_assemblies_path = $env:SHARED_ASSEMBLIES_PATH
-    }
-
-    #$selenium_drivers_path = 'c:\java\selenium'
-    # SELENIUM_DRIVERS_PATH environment overrides parameter, for Team City/Jenkinks
-    if (($env:SELENIUM_DRIVERS_PATH -ne $null) -and ($env:SELENIUM_DRIVERS_PATH -ne '')) {
-        $script:selenium_path = $env:SELENIUM_DRIVERS_PATH
-    }
-    elseif (($env:SELENIUM_PATH -ne $null) -and ($env:SELENIUM_PATH -ne '')) {
-        $script:selenium_path = $env:SELENIUM_PATH
-    }
-
-    # write-Debug "load_shared_assemblies -shared_assemblies_path ${shared_assemblies_path} -shared_assemblies ${shared_assemblies}"
-    # start-sleep -milliseconds 1000
-
-   # load_shared_assemblies -shared_assemblies_path $shared_assemblies_path -shared_assemblies $shared_assemblies
-
 
     $uri = [System.Uri](('http://{0}:{1}/wd/hub' -f $hub_host, $hub_port))
     if ($DebugPreference -eq 'Continue') {
@@ -119,9 +89,10 @@ function launch_selenium {
         }
     }
 
-    $driver = $null
+    $selenium = $null
     if ($browser -ne $null -and $browser -ne '') {
-        if ($use_remote_driver) {
+
+        if ($browser -Like "*Grid*") {
 
             try {
                 $connection = (New-Object Net.Sockets.TcpClient)
@@ -132,178 +103,253 @@ function launch_selenium {
             }
             catch {
                 Write-Debug 'Launching grid'
-                Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /c ${script:selenium_path}\hub.cmd"
-                Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /c ${script:selenium_path}\node.cmd"
+                [string]$script:shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
+                Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\hub.cmd"
+                Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\node.cmd"
                 Start-Sleep -Millisecond 5000
             }
 
         }
         else {
-            # launching Selenium jar in standalone execution is not needed
+            # launching Selenium Sever jar in standalone execution is not needed
 
             # adding driver folder to the path environment
-            if (-not (Test-Path $script:selenium_path)) {
-                throw "Folder $script:selenium_path} does not exist, cannot be added to $env:PATH"
+            if (-not (Test-Path $script:shared_assemblies_path)) {
+                throw "Folder $script:shared_assemblies_path} does not exist, cannot be added to $env:PATH"
             }
 
             # See if the new folder is already in the path.
-            if ($env:PATH | Select-String -SimpleMatch $script:selenium_path) {
-                Write-Debug "Folder $script:selenium_path} already within `$env:PATH"
+            if ($env:PATH | Select-String -SimpleMatch $script:shared_assemblies_path) {
+                Write-Debug "Folder $script:shared_assemblies_path} already within `$env:PATH"
 
+            }else{
+              # Set the new PATH environment
+              $env:PATH = $env:PATH + ';' + $script:shared_assemblies_path
             }
-
-            # Set the new PATH environment
-            $env:PATH = $env:PATH + ';' + $script:selenium_path
         }
 
     }
 
-    write-debug "Launching ${browser}"
 
-    if ($browser -match 'firefox') {
-        if ($use_remote_driver) {
-            $capability = [OpenQA.Selenium.Remote.DesiredCapabilities]::Firefox()
-            $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver ($uri, $capability)
+    try{
+        write-host "Browser chosen: $browser"
+        write-debug "Launching ${browser}"
 
-        }
-        else {
-            # Need constructior with firefoxOptions for headless
-            if ($run_headless) {
-                # https://stackoverflow.com/questions/46848615/headless-firefox-in-selenium-c-sharp
+        switch ($browser)
+        {
+            <# Mozilla Firefox #>
+            "Firefox" {
+                $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver;
+                #$selenium.Manage().Window.Maximize();
+
+            }
+            <# Mozilla Firefox Headless #>
+            "FirefoxHeadless" {
                 [OpenQA.Selenium.Firefox.FirefoxOptions]$firefox_options = new-object OpenQA.Selenium.Firefox.FirefoxOptions
                 $firefox_options.addArguments('--headless')
-                $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver ($firefox_options)
+                $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver($firefox_options)
             }
-            else {
-                # $driver_environment_variable = 'webdriver.gecko.driver'
-                # if (-not [Environment]::GetEnvironmentVariable($driver_environment_variable, [System.EnvironmentVariableTarget]::Machine)) {
-                #      [Environment]::SetEnvironmentVariable( $driver_environment_variable, "${script:selenium_path}\geckodriver.exe")
-                #     #[Environment]::SetEnvironmentVariable( $driver_environment_variable, "F:\Data\Git\Selenium\lib40\geckodriver.exe")
-                # }
-                # #  $capability = [OpenQA.Selenium.Remote.DesiredCapabilities]::Firefox()
-
-                # [object]$profile_manager = New-Object OpenQA.Selenium.Firefox.FirefoxProfileManager
-                # #[OpenQA.Selenium.Firefox.FirefoxProfile[]]$profiles = $profile_manager.ExistingProfiles[1]
-                # #$profile = Join-Path $PSScriptRoot "Assets\ff-profile\rust_mozprofile.YwpEBLY3hCRX"
-                # $profile = [OpenQA.Selenium.Firefox.FirefoxProfile]::new("xyzProfile")
-
-                # [OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = $profile_manager.GetProfile($profile)
-                # [OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = New-Object OpenQA.Selenium.Firefox.FirefoxProfile ($profile)
-                # #  $selected_profile_object.setPreference('general.useragent.override',"Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/34.0")
-
-                # # https://code.google.com/p/selenium/issues/detail?id=40
-
-                # $selected_profile_object.setPreference('browser.cache.disk.enable', $false)
-                # $selected_profile_object.setPreference('browser.cache.memory.enable', $false)
-                # $selected_profile_object.setPreference('browser.cache.offline.enable', $false)
-                # $selected_profile_object.setPreference('network.http.use-cache', $false)
-                #$selected_profile_object.setPreference('FirefoxBinaryPath', "F:\Data\Git\Selenium\lib40\geckodriver.exe")
-
-                 #$selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver ($selected_profile_object)
-               #$driver = New-Object OpenQA.Selenium.Firefox.FirefoxDriver;
-
-               $selenium= New-Object -TypeName "OpenQA.Selenium.Firefox.FirefoxDriver"
-               $selenium.Manage().Timeouts().ImplicitWait = [TimeSpan]::FromSeconds(10)
-
-
-               #$Driver = New-Object -TypeName "OpenQA.Selenium.Firefox.FirefoxDriver"
-             #  $selenium.Manage().Timeouts().ImplicitWait = [TimeSpan]::FromSeconds(10)
-
-            #   $base_url = "http://www.google.com"
-
-              # $selenium.Navigate().GoToUrl($base_url)
-
-                #[OpenQA.Selenium.Firefox.FirefoxProfile[]]$profiles = $profile_manager.ExistingProfiles
-
-                # [NUnit.Framework.Assert]::IsInstanceOfType($profiles , new-object System.Type( FirefoxProfile[]))
-                # [NUnit.Framework.StringAssert]::AreEqualIgnoringCase($profiles.GetType().ToString(),'OpenQA.Selenium.Firefox.FirefoxProfile[]')
+            <# Mozilla Firefox(Selenium Grid) #>
+              "MozillaFirefoxGrid" {
+              $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
+              $capability.SetCapability("browserName", "firefox");
+              $capability.SetCapability("platform",    "WINDOWS");
+              #$capability.SetCapability("version",     "43.0");
+              $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver($uri, $capability);
+              #$selenium.Manage().Window.Maximize();
             }
-        }
-    }
-    elseif ($browser -match 'chrome') {
-        $capability = [OpenQA.Selenium.Remote.DesiredCapabilities]::Chrome()
-        if ($use_remote_driver) {
-            $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver ($uri, $capability)
-        }
-        else {
-            $driver_environment_variable = 'webdriver.chrome.driver'
-            if (-not [Environment]::GetEnvironmentVariable($driver_environment_variable, [System.EnvironmentVariableTarget]::Machine)) {
-                [Environment]::SetEnvironmentVariable( $driver_environment_variable, "${script:selenium_path}\chromedriver.exe")
-            }
-
-            # override
-
-            # Oveview of extensions
-            # https://sites.google.com/a/chromium.org/chromedriver/capabilities
-
-            # Profile creation
-            # https://support.google.com/chrome/answer/142059?hl=en
-            # http://www.labnol.org/software/create-family-profiles-in-google-chrome/4394/
-            # using Profile
-            # http://superuser.com/questions/377186/how-do-i-start-chrome-using-a-specified-user-profile/377195#377195
-
-
-            # origin:
-            # http://stackoverflow.com/questions/20401264/how-to-access-network-panel-on-google-chrome-developer-toools-with-selenium
-
-            [OpenQA.Selenium.Chrome.ChromeOptions]$options = New-Object OpenQA.Selenium.Chrome.ChromeOptions
-
-            if ($run_headless) {
-                $width = 1200;
-                $height = 800;
-                # https://stackoverflow.com/questions/45130993/how-to-start-chromedriver-in-headless-mode
-                $options.addArguments([System.Collections.Generic.List[string]]@('--headless', "--window-size=${width}x${height}", '-disable-gpu'))
-            }
-            else {
-                # TODO: makse configurable through a switch
-                #   $options.addArguments('start-maximized')
-                # no-op option - re-enforcing the default setting
+            <# Google Chrome #>
+            "chrome" {
+                [OpenQA.Selenium.Chrome.ChromeOptions]$options = New-Object OpenQA.Selenium.Chrome.ChromeOptions
                 $options.addArguments(('user-data-dir={0}' -f ("${env:LOCALAPPDATA}\Google\Chrome\User Data" -replace '\\', '/')))
                 # if you like to specify another profile parent directory:
                 # $options.addArguments('user-data-dir=c:/TEMP');
-
                 $options.addArguments('--profile-directory=Default')
 
-                [OpenQA.Selenium.Remote.DesiredCapabilities]$capabilities = [OpenQA.Selenium.Remote.DesiredCapabilities]::Chrome()
-                $capabilities.setCapability([OpenQA.Selenium.Chrome.ChromeOptions]::Capability, $options)
+                $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
+                $capability.SetCapability("browserName", "chrome");
+                $capability.SetCapability("platform",    "WINDOWS");
+                $capability.setCapability([OpenQA.Selenium.Chrome.ChromeOptions]::Capability, $options)
+                $locale = 'en-us'
+                # http://knowledgevault-sharing.blogspot.com/2017/05/selenium-webdriver-with-powershell.html
+                $options.addArguments([System.Collections.Generic.List[string]]@('--allow-running-insecure-content', '--disable-infobars', '--enable-automation', '--kiosk', "--lang=${locale}"))
+                $options.AddUserProfilePreference('credentials_enable_service', $false)
+                $options.AddUserProfilePreference('profile.password_manager_enabled', $false)
+                $selenium = New-Object OpenQA.Selenium.Chrome.ChromeDriver($options)
+                #$selenium = New-Object OpenQA.Selenium.Chrome.ChromeDriver;
             }
-            $locale = 'en-us'
-            # http://knowledgevault-sharing.blogspot.com/2017/05/selenium-webdriver-with-powershell.html
-            $options.addArguments([System.Collections.Generic.List[string]]@('--allow-running-insecure-content', '--disable-infobars', '--enable-automation', '--kiosk', "--lang=${locale}"))
-            $options.AddUserProfilePreference('credentials_enable_service', $false)
-            $options.AddUserProfilePreference('profile.password_manager_enabled', $false)
-            $selenium = New-Object OpenQA.Selenium.Chrome.ChromeDriver($options)
-        }
-    }
-    elseif ($browser -match 'ie') {
-        if ($use_remote_driver) {
-            $capability = [OpenQA.Selenium.Remote.DesiredCapabilities]::InternetExplorer()
-            if ($version -ne $null -and $version -ne 0) {
-                $capability.setCapability('version', $version.ToString());
+            <# Google Chrome Healess #>
+              "chromeHeadless" {
+                  [OpenQA.Selenium.Chrome.ChromeOptions]$options = New-Object OpenQA.Selenium.Chrome.ChromeOptions
+                  $width = 1200;
+                  $height = 800;
+                  # https://stackoverflow.com/questions/45130993/how-to-start-chromedriver-in-headless-mode
+                  $options.addArguments([System.Collections.Generic.List[string]]@('--headless', "--window-size=${width}x${height}", '-disable-gpu'))
+                  $locale = 'en-us'
+                  # http://knowledgevault-sharing.blogspot.com/2017/05/selenium-webdriver-with-powershell.html
+                  $options.addArguments([System.Collections.Generic.List[string]]@('--allow-running-insecure-content', '--disable-infobars', '--enable-automation', '--kiosk', "--lang=${locale}"))
+                  $options.AddUserProfilePreference('credentials_enable_service', $false)
+                  $options.AddUserProfilePreference('profile.password_manager_enabled', $false)
+                  $selenium = New-Object OpenQA.Selenium.Chrome.ChromeDriver($options)
+            }
+            <# Goofle Chrome(Selenium Grid) #>
+              "GoogleChromeGrid" {
+                  $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
+                  $capability.SetCapability("browserName", "chrome");
+                  $capability.SetCapability("platform",    "WINDOWS");
+                # $capability.SetCapability("version",     "47.0.2526.106 m (64-bit)");
+                  $driver = New-Object OpenQA.Selenium.Remote.RemoteWebDriver($selenium_grid_hub, $capability);
+                  #$driver.Manage().Window.Maximize();
+            }
+            <# Internet Explorer #>
+            "ie" {
+                $selenium = New-Object OpenQA.Selenium.IE.InternetExplorerDriver;
+                #$selenium.Manage().Window.Maximize();
+            }
+            <# Internet Explorer x64 (Selenium Grid) #>
+            "ieGrid" {
+                $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
+                $capability.SetCapability("browserName", "internet explorer");
+                $capability.SetCapability("platform",    "WINDOWS");
+                #$capability.SetCapability("version",     "11.0 X64");
+                $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver($uri, $capability);
+                #$selenium.Manage().Window.Maximize();
+            }
+            <# Edge #>
+            "Edge" {
+                $selenium = New-Object OpenQA.Selenium.Edge.EdgeDriver($script:shared_assemblies_path);
+                #$selenium.Manage().Window.Maximize();
+            }
+            <# Mozilla Firefox #>
+            default {
+                $browser = "Firefox";
+                $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver;
+                #$selenium.Manage().Window.Maximize();
             }
 
-            # $capability.setCapability(InternetExplorerDriver.ENABLE_ELEMENT_CACHE_CLEANUP, true)
-            # $capability.setCapability(InternetExplorerDriver.IE_ENSURE_CLEAN_SESSION, $true)
-            $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver ($uri, $capability)
         }
-        else {
-            <#
-        NOTE:
-        New-Object : Exception calling ".ctor" with "1" argument(s): "Unexpected error launching Internet Explorer. Browser zoom level was set to 75%. It should be
-        #>
-            $driver_environment_variable = 'webdriver.ie.driver'
-            if (-not [Environment]::GetEnvironmentVariable($driver_environment_variable, [System.EnvironmentVariableTarget]::Machine)) {
-                [Environment]::SetEnvironmentVariable( $driver_environment_variable, "${script:selenium_path}\chromedriver.exe")
-            }
-            $selenium = New-Object OpenQA.Selenium.IE.InternetExplorerDriver($script:selenium_path)
 
-        }
-        else {
-            throw "unknown browser choice:${browser}"
-        }
+        #$selenium.Manage().Timeouts().ImplicitWait = [TimeSpan]::FromSeconds(10)
+        return $selenium;
+
+    }catch [System.SystemException] {
+        $ErrorMessage = $_.Exception.Message
+        write-host $ErrorMessage
+        $selenium.Close();
+        $selenium.Dispose();
+        exit 1
     }
-    $selenium
 }
+
+
+function custom_pause {
+    param([bool]$fullstop)
+    # Do not close Browser / Selenium when run from Powershell ISE
+    if ($fullstop) {
+      try {
+        Write-Output 'pause'
+        [void]$host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+      } catch [exception]{}
+    } else {
+      Start-Sleep -Millisecond 1000
+    }
+  }
+
+
+
+<#
+.SYNOPSIS
+	Sets default timeouts with current Selenium session
+.DESCRIPTION
+	Sets default timeouts with current Selenium session
+
+.EXAMPLE
+    set_timeouts ([ref]$selenium) [-exlicit <explicit timeout>] [-page_load <page load timeout>] [-script <script timeout>]
+
+.LINK
+
+
+.NOTES
+
+	VERSION HISTORY
+	2015/06/21 Initial Version
+#>
+
+
+function set_timeouts {
+    param(
+      [System.Management.Automation.PSReference]$selenium_ref,
+      [int]$explicit = 60,
+      [int]$page_load = 60,
+      [int]$script = 60
+    )
+    [void]($selenium_ref.Value.Manage().timeouts().ImplicitlyWait([System.TimeSpan]::FromSeconds($explicit)))
+    [void]($selenium_ref.Value.Manage().timeouts().SetPageLoadTimeout([System.TimeSpan]::FromSeconds($pageload)))
+    [void]($selenium_ref.Value.Manage().timeouts().SetScriptTimeout([System.TimeSpan]::FromSeconds($script)))
+  }
+
+  <#
+.SYNOPSIS
+	Determines script directory
+.DESCRIPTION
+	Determines script directory
+
+.EXAMPLE
+	$script_directory = Get-ScriptDirectory
+
+.LINK
+	# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
+
+.NOTES
+	TODO: http://joseoncode.com/2011/11/24/sharing-powershell-modules-easily/
+	VERSION HISTORY
+	2015/06/07 Initial Version
+#>
+# use $debugpreference = 'continue'/'silentlycontinue' to show / hide debugging information
+
+# http://poshcode.org/2887
+# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
+# https://msdn.microsoft.com/en-us/library/system.management.automation.invocationinfo.pscommandpath%28v=vs.85%29.aspx
+# https://gist.github.com/glombard/1ae65c7c6dfd0a19848c
+function Get-ScriptDirectory
+{
+  [string]$scriptDirectory = $null
+
+  if ($host.Version.Major -gt 2) {
+    $scriptDirectory = (Get-Variable PSScriptRoot).Value
+    Write-Debug ('$PSScriptRoot: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.PSCommandPath)
+    Write-Debug ('$MyInvocation.PSCommandPath: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+
+    $scriptDirectory = Split-Path -Parent $PSCommandPath
+    Write-Debug ('$PSCommandPath: {0}' -f $scriptDirectory)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+  } else {
+    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+    if ($scriptDirectory -ne $null) {
+      return $scriptDirectory;
+    }
+    $Invocation = (Get-Variable MyInvocation -Scope 1).Value
+    if ($Invocation.PSScriptRoot) {
+      $scriptDirectory = $Invocation.PSScriptRoot
+    } elseif ($Invocation.MyCommand.Path) {
+      $scriptDirectory = Split-Path $Invocation.MyCommand.Path
+    } else {
+      $scriptDirectory = $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
+    }
+    return $scriptDirectory
+  }
+}
+
+
 
 <#
 .SYNOPSIS
@@ -322,8 +368,6 @@ function launch_selenium {
 	VERSION HISTORY
 	2015/06/07 Initial Version
 #>
-
-
 function cleanup {
     param(
       [System.Management.Automation.PSReference]$selenium_ref
@@ -337,3 +381,11 @@ function cleanup {
 
     }
   }
+
+  function Stop-SeDriver {
+    param(
+        [System.Management.Automation.PSReference]$selenium_ref
+    )
+
+    $selenium.Dispose()
+}

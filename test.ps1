@@ -19,4 +19,6 @@ $VerbosePreference = 'continue'
 #./canvas_actions.ps1 "firefox"
 #./booking_com_search.ps1 "firefox"
 #./refresh_windows_key.ps1 "firefox"
-./keynote_s1.ps1 -password "noee"
+#./keynote_s1.ps1 -password "noee"
+#./F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "lalal"
+./freelancer_search.ps1 "MozillaFirefoxGrid" -password "Test01"
