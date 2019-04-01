@@ -69,7 +69,6 @@ function launch_selenium {
         [string]$hub_port = '4444',
         [switch]$debug
     )
-    [string]$script:shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
 
     # Write-Debug (Get-ScriptDirectory)
     $use_remote_driver = [bool]$PSBoundParameters['grid'].IsPresent
@@ -103,7 +102,6 @@ function launch_selenium {
             }
             catch {
                 Write-Debug 'Launching grid'
-                [string]$script:shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
                 Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\hub.cmd"
                 Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\node.cmd"
                 Start-Sleep -Millisecond 5000
