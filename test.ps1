@@ -5,7 +5,8 @@
 #Import-Module -Name .\SeleniumWin10.psd1 -Force
 #import-module -name .\selenium_common.psm1 -force
 
-$VerbosePreference = 'continue'
+#$VerbosePreference = 'continue'
+$DebugPreference = 'Continue'
 
 #Write-Host "Global VerbosePreference: $global:VerbosePreference"
 #Write-Host "TestModules.ps1 Script VerbosePreference: $script:VerbosePreference"
@@ -21,5 +22,9 @@ $VerbosePreference = 'continue'
 #./refresh_windows_key.ps1 "firefox"
 #./keynote_s1.ps1 -password "noee"
 #./F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "lalal"
-./freelancer_search.xpath.ps1 "firefox" -password "Test01"
+./freelancer_search.xpath.ps1 "firefox" -password "Test01" -debug
+#./scraping_projects "firefox" -password "Test01" -debug
+#./iframes.ps1 "firefox"
+#./freelancer_search.css.ps1 "firefox" -password "Test01" -debug
 #F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "Test01"
+

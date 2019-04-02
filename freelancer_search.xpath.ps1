@@ -57,7 +57,6 @@ $selenium.Navigate().GoToUrl($base_url)
 [string]$login_css_selector = "/html/body/div[1]/header/div/div/div[2]/a[1]"
 [object]$login_button_element = find_element -xpath $login_css_selector -selenium $selenium
 #[object]$login_button_element = find_element -xpath $login_css_selector
-
 highlight ([ref]$selenium) ([ref]$login_button_element)
 [void]$actions.MoveToElement([OpenQA.Selenium.IWebElement]$login_button_element).Click().Build().Perform()
 
@@ -68,6 +67,80 @@ Write-Output 'Log in'
 
 [object]$login_div_element = find_element -xpath $login_div_selector -selenium $selenium
 highlight ([ref]$selenium) ([ref]$login_div_element)
+
+<#
+Example of web elements:
+1. Text box
+2. Button
+3. Dropdown list
+4. Hyperlink
+5. Check Box
+6. Radio Button.
+#>
+
+#Testing SeElementAttribute
+#This is my test to get the attribute from the given element
+#[OpenQA.Selenium.IWebElement]$login_div_element2 = find_element -xpath $login_div_selector -selenium $selenium
+#the answer is id="username" , not sure how useful that is though
+
+#Derived from element Text box, therefore no longer an element:
+$getAttribute = Get-SeElementAttribute -Element $login_div_element -Attribute "id"
+write-host "Attribute id = " $getAttribute
+
+$getAttribute = Get-SeElementAttribute -Element $login_div_element -Attribute "type"
+write-host "Attribute type = " $getAttribute
+
+$getAttribute = Get-SeElementAttribute -Element $login_div_element -Attribute "placeholder"
+write-host "Attribute placeholder = " $getAttribute
+
+#Text box element:
+$elementId = find_element -id "username" -selenium $selenium
+highlight ([ref]$selenium) ([ref]$elementId)
+
+#Text box element:
+$elementName = find_element -name "username" -selenium $selenium
+highlight ([ref]$selenium) ([ref]$elementName)
+
+#Text box element: there are 3 input tag_name, its picked the currently one, i.e username textbox
+$elementName = find_element -tag_name "input" -selenium $selenium
+highlight ([ref]$selenium) ([ref]$elementName)
+
+#Text box element:
+$elementClass = find_element -classname "large-input" -selenium $selenium
+highlight ([ref]$selenium) ([ref]$elementClass)
+
+#Hyperlink element:
+$linkText = find_element -link_text "Forgot Password?" -selenium $selenium
+highlight ([ref]$selenium) ([ref]$linkText)
+
+#Hyperlink element:
+$partialLinkText = find_element -partial_link_text "Forgot Pass" -selenium $selenium
+highlight ([ref]$selenium) ([ref]$partialLinkText)
+
+
+#Testing find_elements
+$parent_div_selector = "/html/body/div[1]/main/fl-login-signup-angular/fl-login-signup-modal/div/div/div/div/fl-login/fl-login-form"
+#[OpenQA.Selenium.IWebElement]$parent_element = find_element -xpath $parent_div_selector -selenium $selenium
+[Object]$parent_element = find_element -xpath $parent_div_selector -selenium $selenium
+#select betwen the biggest dialog and small dialog all the way to password the result is the left over?
+#So the element between the big and small diaglog are "Forgot Password? (Hyperlink), Remember me (checkbox) and Log In (button)"
+$betweenTheDialog = "/html/body/div[1]/main/fl-login-signup-angular/fl-login-signup-modal/div/div/div/div/fl-login/fl-login-form/div[2]/form[2]/fieldset"
+$elements= find_elements -xpath $betweenTheDialog -parent $parent_element -selenium $selenium
+$elements.count
+$max_count = 10
+$element_count = 0
+$element_found = $false
+$elements | ForEach-Object {
+  $element_count++
+  if ($element_found -or ($element_count -gt $max_count)) {
+    write-host $_
+  }
+}
+
+#find the closest element - didn't work!!:
+$css_selector = "/html/body/div[1]/main/fl-login-signup-angular/fl-login-signup-modal/div/div/div/div/fl-login/fl-login-form/div[2]/form[1]/button"
+$element = find_element -xpath $css_selector -selenium $selenium
+$result = find_via_closest -ancestor_locator 'main' -target_element_locator "button[type='submit']" -element_ref ([ref]$element)
 
 [string]$login_username_selector = "//*[@id='username']"
 [string]$login_username_data = $username
