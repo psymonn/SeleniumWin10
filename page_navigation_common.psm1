@@ -430,44 +430,58 @@ function sleep(milliseconds) {
 
 function find_element {
   param(
-    [Parameter(ParameterSetName = 'set_xpath')] $xpath,
-    [Parameter(ParameterSetName = 'set_css_selector')] $css_selector,
-    [Parameter(ParameterSetName = 'set_id')] $id,
-    [Parameter(ParameterSetName = 'set_linktext')] $link_text,
-    [Parameter(ParameterSetName = 'set_partial_link_text')] $partial_link_text,
-    [Parameter(ParameterSetName = 'set_tagname')] $tag_name,
-    [Parameter(ParameterSetName = 'set_classname')] $classname,
-    [Parameter()]$selenium
+    [Parameter(ParameterSetName = 'set_xpath')]
+    $xpath,
+    [Parameter(ParameterSetName = 'set_css_selector')]
+    $css_selector,
+    [Parameter(ParameterSetName = 'set_name')]
+    $name,
+    [Parameter(ParameterSetName = 'set_id')]
+    $id,
+    [Parameter(ParameterSetName = 'set_linktext')]
+    $link_text,
+    [Parameter(ParameterSetName = 'set_partial_link_text')]
+    $partial_link_text,
+    [Parameter(ParameterSetName = 'set_tagname')]
+    $tag_name,
+    [Parameter(ParameterSetName = 'set_classname')]
+    $classname,
+    [Parameter()] $selenium
   )
 
 
-  # guard
-  $implemented_options = @{
-    'xpath' = $true;
-    'css_selector' = $true;
-    'id' = $true;
-    'link_text' = $true;
-    'partial_link_text' = $true;
-    'tag_name' = $true;
-    'classname' = $true;
+  # # guard
+  # $implemented_options = @{
+  #   'xpath' = $true;
+  #   'css_selector' = $true;
+  #   'id' = $true;
+  #   'link_text' = $true;
+  #   'partial_link_text' = $true;
+  #   'tag_name' = $true;
+  #   'classname' = $true;
+  # }
+
+  # $implemented.Keys | ForEach-Object { $option = $_
+  #   if ($psBoundParameters.ContainsKey($option)) {
+
+  #     if (-not $implemented_options[$option]) {
+
+  #       Write-Output ('Option {0} i not implemented' -f $option)
+
+  #     } else {
+  #       # will find
+
+  #     }
+  #   }
+  # }
+  # if ($false) {
+  #   Write-Output @psBoundParameters | Format-Table -AutoSize
+  # }
+
+  if ($selenium -eq $null) {
+    throw "WebDriver has not been initialised"
   }
 
-  $implemented.Keys | ForEach-Object { $option = $_
-    if ($psBoundParameters.ContainsKey($option)) {
-
-      if (-not $implemented_options[$option]) {
-
-        Write-Output ('Option {0} i not implemented' -f $option)
-
-      } else {
-        # will find
-
-      }
-    }
-  }
-  if ($false) {
-    Write-Output @psBoundParameters | Format-Table -AutoSize
-  }
   $element = $null
   $wait_seconds = 5
   $wait_polling_interval = 50
@@ -475,33 +489,30 @@ function find_element {
   [OpenQA.Selenium.Support.UI.WebDriverWait]$wait = New-Object OpenQA.Selenium.Support.UI.WebDriverWait ($selenium,[System.TimeSpan]::FromSeconds($wait_seconds))
   $wait.PollingInterval = $wait_polling_interval
 
-  if ($css_selector -ne $null) {
-
+  #if ($css_selector -ne $null) {
+  if ($PSCmdlet.ParameterSetName -eq "set_css_selector") {
     try {
       [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::CssSelector($css_selector)))
     } catch [exception]{
       write-debug ("Exception : {0} ...`ncss_selector='{1}'" -f (($_.Exception.Message) -split "`n")[0],$css_selector)
     }
     $element = $selenium.FindElement([OpenQA.Selenium.By]::CssSelector($css_selector))
-
-
   }
 
 
-  if ($xpath -ne $null) {
-
-    try {
-      [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::XPath($xpath)))
-    } catch [exception]{
-      write-debug ("Exception : {0} ...`nxpath='{1}'" -f (($_.Exception.Message) -split "`n")[0],$xpath)
-    }
-
+  #if ($xpath -ne $null) {
+  if ($PSCmdlet.ParameterSetName -eq "set_xpath") {
+    # try {
+    #   [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::XPath($xpath)))
+    # } catch [exception]{
+    #   write-debug ("Exception : {0} ...`nxpath='{1}'" -f (($_.Exception.Message) -split "`n")[0],$xpath)
+    # }
+    WaitUntilElementExists -waitForElement $xpath -Element XPath
     $element = $selenium.FindElement([OpenQA.Selenium.By]::XPath($xpath))
-
-
   }
 
-  if ($link_text -ne $null) {
+  #if ($link_text -ne $null) {
+  if ($PSCmdlet.ParameterSetName -eq "set_linktext") {
     try {
       [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::LinkText($link_text)))
 
@@ -511,7 +522,8 @@ function find_element {
     $element = $selenium.FindElement([OpenQA.Selenium.By]::LinkText($link_text))
   }
 
-  if ($tag_name -ne $null) {
+  #if ($tag_name -ne $null) {
+  if ($PSCmdlet.ParameterSetName -eq "set_tagname") {
     try {
       [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::TagName($tag_name)))
 
@@ -521,7 +533,8 @@ function find_element {
     $element = $selenium.FindElement([OpenQA.Selenium.By]::TagName($tag_name))
   }
 
-  if ($partial_link_text -ne $null) {
+  #if ($partial_link_text -ne $null) {
+  if ($PSCmdlet.ParameterSetName -eq "set_partial_link_text") {
     try {
       [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::PartialLinkText($partial_link_text)))
 
@@ -531,8 +544,8 @@ function find_element {
     $element = $selenium.FindElement([OpenQA.Selenium.By]::PartialLinkText($partial_link_text))
   }
 
-  if ($classname -ne $null) {
-
+  #if ($classname -ne $null) {
+  if ($PSCmdlet.ParameterSetName -eq "set_classname") {
     try {
       [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::ClassName($classname)))
 
@@ -542,8 +555,8 @@ function find_element {
     $element = $selenium.FindElement([OpenQA.Selenium.By]::ClassName($classname))
   }
 
-  if ($id -ne $null) {
-
+  #if ($id -ne $null) {
+  if ($PSCmdlet.ParameterSetName -eq "set_id") {
     try {
       [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::Id($id)))
 
@@ -553,10 +566,34 @@ function find_element {
     $element = $selenium.FindElement([OpenQA.Selenium.By]::Id($id))
   }
 
+  if ($PSCmdlet.ParameterSetName -eq "set_name") {
+    try {
+      [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::Name($name)))
+
+    } catch [exception]{
+      write-debug ("Exception : {0} ...`nname='{1}'" -f (($_.Exception.Message) -split "`n")[0],$name)
+    }
+    $element = $selenium.FindElement([OpenQA.Selenium.By]::Name($name))
+  }
+
+
   return $element
 }
 
+function WaitUntilElementExists {
+  param(
+    [Parameter()]
+    $WaitForElement,
+    [Parameter()]
+    $Element
+  )
+  try {
+    [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::${Element}($WaitForElement)))
 
+  } catch [exception]{
+    write-debug ("Exception : {0} ...`n${Element}='{1}'" -f (($_.Exception.Message) -split "`n")[0],$WaitForElement)
+  }
+}
 
 function Find-SeElement {
   param(

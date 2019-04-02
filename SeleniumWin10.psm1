@@ -18,9 +18,9 @@
 [string[]]$shared_assemblies = @(
   'WebDriver.dll',
   'WebDriver.Support.dll',
-  'Newtonsoft.Json.dll'
-  #'nunit.core.dll',
-  #'nunit.framework.dll'
+  'Newtonsoft.Json.dll',
+  'nunit.core.dll',
+  'nunit.framework.dll'
   )
 
 

@@ -21,4 +21,5 @@ $VerbosePreference = 'continue'
 #./refresh_windows_key.ps1 "firefox"
 #./keynote_s1.ps1 -password "noee"
 #./F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "lalal"
-./freelancer_search.ps1 "MozillaFirefoxGrid" -password "Test01"
+./freelancer_search.xpath.ps1 "firefox" -password "Test01"
+#F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "Test01"
