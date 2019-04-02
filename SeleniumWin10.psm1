@@ -137,6 +137,7 @@ function launch_selenium {
         {
             <# Mozilla Firefox #>
             "Firefox" {
+                #https://support.mozilla.org/en-US/kb/profile-manager-create-and-remove-firefox-profiles
                 #about:profiles
                 $driver_environment_variable = 'webdriver.gecko.driver'
                   if (-not [Environment]::GetEnvironmentVariable($driver_environment_variable, [System.EnvironmentVariableTarget]::Machine)){
