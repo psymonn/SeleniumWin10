@@ -22,7 +22,10 @@ $DebugPreference = 'Continue'
 #./refresh_windows_key.ps1 "firefox"
 #./keynote_s1.ps1 -password "noee"
 #./F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "lalal"
-./freelancer_search.xpath.ps1 "firefox" -password "Test01" -debug
+#./freelancer_search.xpath.ps1 "firefox" -password "Test01" -debug
+#./get_sessionid "firefoxGrid" -grid -debug
+#./get_sessionid "firefoxGrid" -grid -debug
+./get_sessionid "firefoxGrid" -debug
 #./scraping_projects "firefox" -password "Test01" -debug
 #./iframes.ps1 "firefox"
 #./freelancer_search.css.ps1 "firefox" -password "Test01" -debug

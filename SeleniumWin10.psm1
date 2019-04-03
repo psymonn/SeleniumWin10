@@ -143,7 +143,7 @@ function launch_selenium {
 
                 #https://github.com/SeleniumHQ/selenium/issues/5290
                 [string] $profile1 = "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium"
-                [string] $profile2 = "C:\Data\App\FirefoxProfile\CustomProfile3\dlg74adr.Windows10Profile2"
+                [string] $profile2 = "F:\Data\App\FirefoxProfile\CustomProfile3\dlg74adr.Windows10Profile2"
                 [OpenQA.Selenium.Firefox.FirefoxOptions]$firefox_options = new-object OpenQA.Selenium.Firefox.FirefoxOptions
                 #$firefox_options.addArguments("-profile", "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium")
                 $firefox_options.addArguments("-profile", $profile2)
