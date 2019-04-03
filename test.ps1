@@ -15,7 +15,6 @@ $DebugPreference = 'Continue'
 
 #.\booking_com_search.ps1 "ie"
 #.\freelancer_search.ps1 "ie" -password "hello"
-c
 #launch_selenium
 #./canvas_actions.ps1 "firefox"
 #./booking_com_search.ps1 "firefox"
@@ -24,7 +23,7 @@ c
 #./F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "lalal"
 #./freelancer_search.xpath.ps1 "firefox" -password "Test01" -debug
 #./get_sessionid "firefoxGrid" -grid -debug
-./get_sessionid "firefox" -debug
+./get_sessionid "firefoxGrid" -debug
 #./scraping_projects "firefox" -password "Test01" -debug
 #./iframes.ps1 "firefox"
 #./freelancer_search.css.ps1 "firefox" -password "Test01" -debug

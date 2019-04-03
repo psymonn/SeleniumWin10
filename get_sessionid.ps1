@@ -1,21 +1,22 @@
 param(
-  [string]$browser,
-  [switch]$grid
+  [string]$browser
+#  [switch]$grid
 )
 
 $MODULE_NAME = 'SeleniumWin10.psd1'
 Import-Module -Name ('{0}/{1}' -f '.',$MODULE_NAME) -Force
 
 # Convertfrom-JSON applies To: Windows PowerShell 3.0 and above
-[NUnit.Framework.Assert]::IsTrue($host.Version.Major -gt 2)
+#[NUnit.Framework.Assert]::IsTrue($host.Version.Major -gt 2)
 
 $hub_host = '127.0.0.1'
 $hub_port = '4444'
 
 try {
 
-  if ([bool]$PSBoundParameters['grid'].IsPresent) {
-    $selenium = launch_selenium -browser $browser -grid -hub_host $hub_host -hub_port $hub_port
+  #if ([bool]$PSBoundParameters['grid'].IsPresent) {
+  if ($browser -Like "*Grid*") {
+    $selenium = launch_selenium -browser $browser -hub_host $hub_host -hub_port $hub_port
     Start-Sleep -Millisecond 500
   } else {
     $selenium = launch_selenium -browser $browser
