@@ -142,7 +142,7 @@ function launch_selenium {
                 #about:config
 
                 [OpenQA.Selenium.Firefox.FirefoxOptions]$firefox_options = new-object OpenQA.Selenium.Firefox.FirefoxOptions
-                $firefox_options.addArguments("-profile", "C:\Users\simon.nguyen4_priv\AppData\Local\Mozilla\Firefox\Profiles\glauvfze.Selenium")
+                $firefox_options.addArguments("-profile", "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium")
                 $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver($firefox_options)
 
                 <#
