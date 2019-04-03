@@ -25,7 +25,7 @@ $DebugPreference = 'Continue'
 #./freelancer_search.xpath.ps1 "firefox" -password "Test01" -debug
 #./get_sessionid "firefoxGrid" -grid -debug
 #./get_sessionid "firefoxGrid" -grid -debug
-./get_sessionid "firefoxGrid" -debug
+./get_sessionid "firefox" -debug
 #./scraping_projects "firefox" -password "Test01" -debug
 #./iframes.ps1 "firefox"
 #./freelancer_search.css.ps1 "firefox" -password "Test01" -debug

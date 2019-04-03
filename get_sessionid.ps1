@@ -39,6 +39,7 @@ write-host "Selenium url "$selenium.Url
 
 
 
+
 [NUnit.Framework.Assert]::IsTrue($sessionid -ne $null)
 
 # https://github.com/davglass/selenium-grid-status/blob/master/lib/index.js

@@ -14,13 +14,13 @@
 	2015/06/22 Initial Version
 #>
 
-[string]$script:shared_assemblies_path = 'C:\Data\Git\Selenium\lib40\'
+[string]$script:shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
 [string[]]$shared_assemblies = @(
   'WebDriver.dll',
-  'WebDriver.Support.dll',
+  'WebDriver.Support.dll'
   #'Newtonsoft.Json.dll',
-  'nunit.core.dll',
-  'nunit.framework.dll'
+  # 'nunit.core.dll',
+  # 'nunit.framework.dll'
   )
 
 
@@ -147,7 +147,6 @@ function launch_selenium {
                 [OpenQA.Selenium.Firefox.FirefoxOptions]$firefox_options = new-object OpenQA.Selenium.Firefox.FirefoxOptions
                 #$firefox_options.addArguments("-profile", "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium")
                 $firefox_options.addArguments("-profile", $profile2)
-                $firefox_options
                 $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver($firefox_options)
 
             }
