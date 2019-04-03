@@ -141,39 +141,15 @@ function launch_selenium {
                 #about:profiles
                 #about:config
 
+                #https://github.com/SeleniumHQ/selenium/issues/5290
+                [string] $profile1 = "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium"
+                [string] $profile2 = "C:\Data\App\FirefoxProfile\CustomProfile3\dlg74adr.Windows10Profile2"
                 [OpenQA.Selenium.Firefox.FirefoxOptions]$firefox_options = new-object OpenQA.Selenium.Firefox.FirefoxOptions
-                $firefox_options.addArguments("-profile", "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium")
+                #$firefox_options.addArguments("-profile", "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium")
+                $firefox_options.addArguments("-profile", $profile2)
+                $firefox_options
                 $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver($firefox_options)
 
-                <#
-                  $driver_environment_variable = 'webdriver.gecko.driver'
-                  if (-not [Environment]::GetEnvironmentVariable($driver_environment_variable, [System.EnvironmentVariableTarget]::Machine)){
-                     [Environment]::SetEnvironmentVariable( $driver_environment_variable, "$($script:shared_assemblies_path)\geckodriver.exe")
-                     #[Environment]::SetEnvironmentVariable("webdriver.gecko.driver","F:\Data\Git\Selenium\lib40\geckodriver.exe")
-                  }
-
-                  ########using FirefoxOptions works!!! for profile; BEWARE: profile_manager doesn't work!! #############
-                  [object]$profile_manager = New-Object OpenQA.Selenium.Firefox.FirefoxProfileManager
-                  write-host "existing profile: " $profile_manager.ExistingProfiles
-
-                  [OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = $profile_manager.GetProfile("Selenium")
-                  #[OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = New-Object OpenQA.Selenium.Firefox.FirefoxProfile ("Selenium")
-                  #$selected_profile_object.setPreference('general.useragent.override',"Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/34.0")
-                  # https://code.google.com/p/selenium/issues/detail?id=40
-                  $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
-                  $capability.SetCapability("browserName", "firefox");
-                  $capability.SetCapability("platform",    "WINDOWS");
-                  $capability.setCapability("marionette", $true)
-                  $capability.SetCapability("BinaryLocation","C:\Program Files\Mozilla Firefox\firefox.exe")
-                  $selected_profile_object.setPreference('marionette', $true)
-                  $selected_profile_object.setPreference('browser.cache.disk.enable', $false)
-                  $selected_profile_object.setPreference('browser.cache.memory.enable', $false)
-                  $selected_profile_object.setPreference('browser.cache.offline.enable', $false)
-                  $selected_profile_object.setPreference('network.http.use-cache', $false)
-                  $capability.setCapability([OpenQA.Selenium.Firefox.FirefoxDriver]::PROFILE, $selected_profile_object)
-                  $selenium = new-object OpenQA.Selenium.Firefox.FirefoxDriver($selected_profile_object)
-                  #$selenium = new-object OpenQA.Selenium.Firefox.FirefoxDriver($capability)
-                 #>
             }
             <# Mozilla Firefox Headless #>
             "FirefoxHeadless" {
