@@ -104,18 +104,22 @@ function launch_selenium {
                 $connection.Close()
             }
             catch {
-                Write-Debug 'Launching grid'
 
+              #avoid running it in Jenkins
+              if (($env:JENKINS_HOME -eq $null) -or ($env:JENKINS_HOME -eq '')) {
 
-              #  $msbuild = 'F:\GitHub\Source\SeleniumWin10\batchFile.cmd'
-              #  start-Process -FilePath $msbuild -ArgumentList '192.168.0.7'
+                  Write-Debug 'Launching grid'
 
-                 Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  hub.cmd ${hub_host} ${hub_port}"
-                 Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  node.cmd ${hub_host} ${hub_port}"
-                 #Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\hub.cmd"
-                # Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\node.cmd"
-                Start-Sleep -Millisecond 5000
-            }
+                  #  $msbuild = 'F:\GitHub\Source\SeleniumWin10\batchFile.cmd'
+                  #  start-Process -FilePath $msbuild -ArgumentList '192.168.0.7'
+
+                    Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  hub.cmd ${hub_host} ${hub_port}"
+                    Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  node.cmd ${hub_host} ${hub_port}"
+                    #Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\hub.cmd"
+                    # Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\node.cmd"
+                    Start-Sleep -Millisecond 5000
+                }
+              }
 
         }
         else {
