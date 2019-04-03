@@ -141,13 +141,35 @@ function launch_selenium {
                 #about:profiles
                 #about:config
 
-                #https://github.com/SeleniumHQ/selenium/issues/5290
-                [string] $profile1 = "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium"
-                [string] $profile2 = "F:\Data\App\FirefoxProfile\CustomProfile3\dlg74adr.Windows10Profile2"
-                [OpenQA.Selenium.Firefox.FirefoxOptions]$firefox_options = new-object OpenQA.Selenium.Firefox.FirefoxOptions
-                #$firefox_options.addArguments("-profile", "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium")
-                $firefox_options.addArguments("-profile", $profile2)
-                $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver($firefox_options)
+                <#
+                  #https://github.com/SeleniumHQ/selenium/issues/5290
+                  #Getting existing profile via option
+                  #This method stuck at browser!
+                  [string] $profile1 = "C:\Data\App\FirefoxProfile\CustomProfile2\glauvfze.Selenium"
+                  [string] $profile2 = "F:\Data\App\FirefoxProfile\CustomProfile3\dlg74adr.Windows10Profile2"
+                  [string] $profile3 = "C:\Users\TI\AppData\Local\Mozilla\Firefox\Profiles\f0gowlzy.default"
+                  [string] $profile4 = "F:\Data\App\FirefoxProfile\CustomProfile4\qu48lvoe.FirefoxTestProfile\"
+
+                  [OpenQA.Selenium.Firefox.FirefoxOptions]$firefox_options = new-object OpenQA.Selenium.Firefox.FirefoxOptions
+                  #$firefox_options.BrowserExecutableLocation = "C:\Program Files\Mozilla Firefox\firefox.exe"
+                  $firefox_options.BrowserExecutableLocation = "C:\\Program Files\\Firefox Developer Edition\\firefox.exe"
+                  $firefox_options.addArguments("-profile", $profile4)
+                  $firefox_options.setPreference('marionette', $true)
+                  $firefox_options.setPreference('browser.cache.disk.enable', $false)
+                  $firefox_options.setPreference('browser.cache.memory.enable', $false)
+                  $firefox_options.setPreference('browser.cache.offline.enable', $false)
+                  $firefox_options.setPreference('network.http.use-cache', $false)
+                  $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver($firefox_options)
+                #>
+
+                <#
+                  #Getting existing profile via profile
+                  [object]$profile_manager = New-Object OpenQA.Selenium.Firefox.FirefoxProfileManager
+                  [OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = $profile_manager.GetProfile("qu48lvoe.FirefoxTestProfile")
+                  $selenium = new-object OpenQA.Selenium.Firefox.FirefoxDriver($selected_profile_object)
+                #>
+
+                $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver
 
             }
             <# Mozilla Firefox Headless #>
