@@ -14,7 +14,7 @@
 	2015/06/22 Initial Version
 #>
 
-[string]$script:shared_assemblies_path = 'C:\Data\Git\Selenium\lib40\'
+[string]$script:shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
 [string[]]$shared_assemblies = @(
   'WebDriver.dll',
   'WebDriver.Support.dll'
@@ -114,10 +114,11 @@ function launch_selenium {
                   #  start-Process -FilePath $msbuild -ArgumentList '192.168.0.7'
 
                     Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/hub.cmd ${hub_host} ${hub_port}"
+                    Start-Sleep -Millisecond 5000
                     Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/node.cmd ${hub_host} ${hub_port}"
                     #Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\hub.cmd"
                     # Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\node.cmd"
-                    Start-Sleep -Millisecond 5000
+                    Start-Sleep -Millisecond 9000
                 }
               }
 
@@ -224,7 +225,7 @@ function launch_selenium {
                 #$options.addArguments('user-data-dir=C:\temp\chromeprofile')
                 $options.addArguments('--profile-directory=Default')
                #$options.addArguments('--profile-directory=Windows10ChromeProfile1')
-                
+
 
                 $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
                 $capability.SetCapability("browserName", "chrome");
@@ -387,5 +388,5 @@ function cleanup {
         [System.Management.Automation.PSReference]$selenium_ref
     )
 
-    $selenium.Dispose()
+    $selenium_ref.Dispose()
 }

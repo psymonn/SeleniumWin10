@@ -6,9 +6,11 @@ Describe "$browser Freelancer" {
     #Import-Module (Join-Path $PSScriptRoot "Selenium.psm1")
     #Import-Module (Resolve-Path ".\PSHitchhiker\PSHitchhiker.psm1") -Force
     $DebugPreference = 'Continue'
+    #$VerbosePreference = 'continue'
+    #$ErrorActionPreference = 'Continue'
 
     # $here = Split-Path -Parent $MyInvocation.MyCommand.Path
-    # $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) 
+    # $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path)
     # write-host "sut =" $sut
     # write-host "here =" $here
     # $here = $here -replace 'pester', ''
@@ -18,9 +20,14 @@ Describe "$browser Freelancer" {
     # Import-Module (Resolve-Path ".\SeleniumWin10.psd1") -Force
     import-module .\SeleniumWin10.psd1 -force
 
-    [string]$username = 'psymon6ng'
-    [string]$password = 'test01'
+    [string] $username = 'psymon6ng'
+    [string] $password = 'Test01'
     [string] $base_url = 'https://www.freelancer.com'
+
+    # $script:selenium = $null
+    # BeforeAll {
+    #     $script:selenium = launch_selenium -browser $browser
+    # }
 
     $selenium = launch_selenium -browser $browser
     Context "Login to Freelancer" {
@@ -28,11 +35,11 @@ Describe "$browser Freelancer" {
             $selenium | Should Not BeNullOrEmpty
         }
 
-        Start-Sleep -Millisecond 500
+        Start-Sleep -Millisecond 1000
         $selenium.Navigate().GoToUrl($base_url)
 
         It "At Freelancer Page " {
-            $selenium.Url | Should Match $base_url 
+            $selenium.Url | Should Match $base_url
         }
 
         [OpenQA.Selenium.Interactions.Actions]$actions = New-Object OpenQA.Selenium.Interactions.Actions ($selenium)
@@ -48,21 +55,20 @@ Describe "$browser Freelancer" {
 
         [void]$actions.MoveToElement([OpenQA.Selenium.IWebElement]$login_button_element).Click().Build().Perform()
 
-        [string]$login_div_selector = "input#username"
-        [object]$login_div_element = find_element -css_selector $login_div_selector -selenium $selenium
-        highlight ([ref]$selenium) ([ref]$login_div_element)
+        # [string]$login_div_selector = "input#username"
+        # [object]$login_div_element = find_element -css_selector $login_div_selector -selenium $selenium
+        # highlight ([ref]$selenium) ([ref]$login_div_element)
 
         [string]$login_username_selector = "input#username"
         [string]$login_username_data = $username
         [object]$login_username_element = find_element -css_selector $login_username_selector -selenium $selenium
         highlight ([ref]$selenium) ([ref]$login_username_element)
 
-
         $login_username_element.Clear()
         $login_username_element.SendKeys($login_username_data)
 
-        $id = Get-SeElementAttribute -Element  $login_div_selector -Attribute "id"
-        $type = Get-SeElementAttribute -Element $login_div_selector -Attribute "type"
+        $id = Get-SeElementAttribute -Element  $login_username_element -Attribute "id"
+        $type = Get-SeElementAttribute -Element $login_username_element -Attribute "type"
 
         It "Enter username" {
            $id | should be "username"
@@ -90,11 +96,12 @@ Describe "$browser Freelancer" {
         highlight ([ref]$selenium) ([ref]$login_submit_element)
         $login_submit_element.Click()
 
-        $wait_seconds = 10
+        $wait_seconds = 15
         $wait_polling_interval = 300
         [OpenQA.Selenium.Support.UI.WebDriverWait]$wait = New-Object OpenQA.Selenium.Support.UI.WebDriverWait ($selenium,[System.TimeSpan]::FromSeconds($wait_seconds))
         $wait.PollingInterval = $wait_polling_interval
 
+        [string]$profile_figure_selector = "figure.ImgContainer.ng-star-inserted img[src*='unknown.png']"
         try {
             [void]$wait.Until([OpenQA.Selenium.Support.UI.ExpectedConditions]::ElementExists([OpenQA.Selenium.By]::CssSelector($profile_figure_selector)))
         } catch [exception]{
@@ -111,12 +118,18 @@ Describe "$browser Freelancer" {
 
     Start-Sleep -Millisecond 1000
     $selenium.Navigate().GoToUrl(('{0}/jobs/myskills/1' -f $base_url))
-    
+
     Context "Navigate to different Page" {
         It "Goto search page" {
             $selenium.url | Should Not Be 'https://www.freelancer.com/dashboard'
         }
- 
-    } 
-    
+
+    }
+
+    cleanup ([ref]$selenium)
+    #Stop-SeDriver([ref]$selenium)
+    # AfterAll {
+    #     cleanup ([ref]$selenium)
+    # }
+
 }

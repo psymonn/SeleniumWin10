@@ -479,8 +479,9 @@ function find_element {
   # if ($false) {
   #   Write-Output @psBoundParameters | Format-Table -AutoSize
   # }
-  Write-Host "PSBoundParameter =" @psBoundParameters | Format-Table -AutoSize
-  write-host "PsCmdlet.ParameterSetName =" $PsCmdlet.ParameterSetName
+
+  #Write-Host "PSBoundParameter =" @psBoundParameters | Format-Table -AutoSize
+  #write-host "PsCmdlet.ParameterSetName =" $PsCmdlet.ParameterSetName
 
   if ($selenium -eq $null) {
     throw "WebDriver has not been initialised"
