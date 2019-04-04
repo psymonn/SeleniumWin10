@@ -14,7 +14,7 @@
 	2015/06/22 Initial Version
 #>
 
-[string]$script:shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
+[string]$script:shared_assemblies_path = 'C:\Data\Git\Selenium\lib40\'
 [string[]]$shared_assemblies = @(
   'WebDriver.dll',
   'WebDriver.Support.dll'
@@ -113,8 +113,8 @@ function launch_selenium {
                   #  $msbuild = 'F:\GitHub\Source\SeleniumWin10\batchFile.cmd'
                   #  start-Process -FilePath $msbuild -ArgumentList '192.168.0.7'
 
-                    Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  hub.cmd ${hub_host} ${hub_port}"
-                    Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  node.cmd ${hub_host} ${hub_port}"
+                    Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/hub.cmd ${hub_host} ${hub_port}"
+                    Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/node.cmd ${hub_host} ${hub_port}"
                     #Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\hub.cmd"
                     # Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\node.cmd"
                     Start-Sleep -Millisecond 5000
@@ -127,7 +127,7 @@ function launch_selenium {
 
             # adding driver folder to the path environment
             if (-not (Test-Path $script:shared_assemblies_path)) {
-                throw "Folder $script:shared_assemblies_path} does not exist, cannot be added to $env:PATH"
+                throw "Folder '$($script:shared_assemblies_path)' does not exist, cannot be added to $env:PATH"
             }
 
             # See if the new folder is already in the path.
@@ -177,12 +177,27 @@ function launch_selenium {
                 #>
 
                 <#
-                  #Getting existing profile via profile
+                  #Getting existing profile via profile - didn't work, keep on produciing new profile after executed
                   [object]$profile_manager = New-Object OpenQA.Selenium.Firefox.FirefoxProfileManager
                   [OpenQA.Selenium.Firefox.FirefoxProfile]$selected_profile_object = $profile_manager.GetProfile("qu48lvoe.FirefoxTestProfile")
                   $selenium = new-object OpenQA.Selenium.Firefox.FirefoxDriver($selected_profile_object)
                 #>
-
+                <#
+                  #error: The file OpenQA.Selenium.Firefox.FirefoxProfile\geckodriver.exe does not exist
+                  #it doesn't mean geckodrive.exe does not exist, it means something wrong with the firefoxprofile class
+                  [string[]] $pathsToProfiles = Get-ChildItem "${env:LOCALAPPDATA}\Mozilla\Firefox\Profiles" | Where-Object {$_.name -like '*default'}
+                  if ($pathsToProfiles.Length -ne 0) {
+                    # FirefoxProfile profile = new FirefoxProfile(pathsToProfiles[0]);
+                      [OpenQA.Selenium.Firefox.FirefoxProfile]$profile = New-Object OpenQA.Selenium.Firefox.FirefoxProfile ($pathsToProfiles[0])
+                      #$profile.SetPreference("browser.tabs.loadInBackground", $false); // set preferences you need
+                      $profile.SetPreference("webdriver.firefox.profile", $pathsToProfiles[0]);
+                      $profile.SetPreference("browser.startup.homepage", "about:blank");
+                      $profile.SetPreference("general.useragent.override", 'model.UserAgent')
+                      $profile.EnableNativeEvents = $true
+                      $profile.AcceptUntrustedCertificates = $true
+                      $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver($profile)
+                  }
+                #>
                 $selenium = New-Object OpenQA.Selenium.Firefox.FirefoxDriver
 
             }
@@ -206,8 +221,10 @@ function launch_selenium {
                 [OpenQA.Selenium.Chrome.ChromeOptions]$options = New-Object OpenQA.Selenium.Chrome.ChromeOptions
                 $options.addArguments(('user-data-dir={0}' -f ("${env:LOCALAPPDATA}\Google\Chrome\User Data" -replace '\\', '/')))
                 # if you like to specify another profile parent directory:
-                # $options.addArguments('user-data-dir=c:/TEMP');
+                #$options.addArguments('user-data-dir=C:\temp\chromeprofile')
                 $options.addArguments('--profile-directory=Default')
+               #$options.addArguments('--profile-directory=Windows10ChromeProfile1')
+                
 
                 $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
                 $capability.SetCapability("browserName", "chrome");
@@ -215,7 +232,8 @@ function launch_selenium {
                 $capability.setCapability([OpenQA.Selenium.Chrome.ChromeOptions]::Capability, $options)
                 $locale = 'en-us'
                 # http://knowledgevault-sharing.blogspot.com/2017/05/selenium-webdriver-with-powershell.html
-                $options.addArguments([System.Collections.Generic.List[string]]@('--allow-running-insecure-content', '--disable-infobars', '--enable-automation', '--kiosk', "--lang=${locale}"))
+                #$options.addArguments([System.Collections.Generic.List[string]]@('--allow-running-insecure-content', '--disable-infobars', '--enable-automation', '--kiosk', "--lang=${locale}"))
+                $options.addArguments([System.Collections.Generic.List[string]]@('--allow-running-insecure-content', '--disable-infobars', '--enable-automation', "--lang=${locale}"))
                 $options.AddUserProfilePreference('credentials_enable_service', $false)
                 $options.AddUserProfilePreference('profile.password_manager_enabled', $false)
                 $selenium = New-Object OpenQA.Selenium.Chrome.ChromeDriver($options)
@@ -332,69 +350,6 @@ function set_timeouts {
     [void]($selenium_ref.Value.Manage().timeouts().SetPageLoadTimeout([System.TimeSpan]::FromSeconds($pageload)))
     [void]($selenium_ref.Value.Manage().timeouts().SetScriptTimeout([System.TimeSpan]::FromSeconds($script)))
   }
-
-  <#
-.SYNOPSIS
-	Determines script directory
-.DESCRIPTION
-	Determines script directory
-
-.EXAMPLE
-	$script_directory = Get-ScriptDirectory
-
-.LINK
-	# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
-
-.NOTES
-	TODO: http://joseoncode.com/2011/11/24/sharing-powershell-modules-easily/
-	VERSION HISTORY
-	2015/06/07 Initial Version
-#>
-# use $debugpreference = 'continue'/'silentlycontinue' to show / hide debugging information
-
-# http://poshcode.org/2887
-# http://stackoverflow.com/questions/8343767/how-to-get-the-current-directory-of-the-cmdlet-being-executed
-# https://msdn.microsoft.com/en-us/library/system.management.automation.invocationinfo.pscommandpath%28v=vs.85%29.aspx
-# https://gist.github.com/glombard/1ae65c7c6dfd0a19848c
-function Get-ScriptDirectory
-{
-  [string]$scriptDirectory = $null
-
-  if ($host.Version.Major -gt 2) {
-    $scriptDirectory = (Get-Variable PSScriptRoot).Value
-    Write-Debug ('$PSScriptRoot: {0}' -f $scriptDirectory)
-    if ($scriptDirectory -ne $null) {
-      return $scriptDirectory;
-    }
-    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.PSCommandPath)
-    Write-Debug ('$MyInvocation.PSCommandPath: {0}' -f $scriptDirectory)
-    if ($scriptDirectory -ne $null) {
-      return $scriptDirectory;
-    }
-
-    $scriptDirectory = Split-Path -Parent $PSCommandPath
-    Write-Debug ('$PSCommandPath: {0}' -f $scriptDirectory)
-    if ($scriptDirectory -ne $null) {
-      return $scriptDirectory;
-    }
-  } else {
-    $scriptDirectory = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-    if ($scriptDirectory -ne $null) {
-      return $scriptDirectory;
-    }
-    $Invocation = (Get-Variable MyInvocation -Scope 1).Value
-    if ($Invocation.PSScriptRoot) {
-      $scriptDirectory = $Invocation.PSScriptRoot
-    } elseif ($Invocation.MyCommand.Path) {
-      $scriptDirectory = Split-Path $Invocation.MyCommand.Path
-    } else {
-      $scriptDirectory = $Invocation.InvocationName.Substring(0,$Invocation.InvocationName.LastIndexOf('\'))
-    }
-    return $scriptDirectory
-  }
-}
-
-
 
 <#
 .SYNOPSIS
