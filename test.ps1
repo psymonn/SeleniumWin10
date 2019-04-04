@@ -23,10 +23,10 @@ $DebugPreference = 'Continue'
 #./F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "lalal"
 #./freelancer_search.xpath.ps1 "firefox" -password "Test01" -debug
 #./get_sessionid "firefoxGrid" -grid -debug
-./samples/get_sessionid "firefoxgrid" -debug
+#./samples/get_sessionid "firefoxgrid" -debug
 #./scraping_projects "firefox" -password "Test01" -debug
 #./iframes.ps1 "firefox"
 #./freelancer_search.css.ps1 "firefox" -password "Test01" -debug
 #F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "Test01"
-
-6
+#./pester/FreelancerTests.ps1
+./FreelancerTests.ps1 "firefoxGrid"
