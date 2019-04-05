@@ -1,12 +1,12 @@
 param (
-    [String]$browser="firefox"
+    [String]$browser="firefoxGrid"
 )
 
 write-host "browser chosen: " $browser
+$DebugPreference = 'Continue'
 Describe "$browser Freelancer" {
     #Import-Module (Join-Path $PSScriptRoot "Selenium.psm1")
     #Import-Module (Resolve-Path ".\PSHitchhiker\PSHitchhiker.psm1") -Force
-    $DebugPreference = 'Continue'
     #$VerbosePreference = 'continue'
     #$ErrorActionPreference = 'Continue'
 
@@ -19,8 +19,8 @@ Describe "$browser Freelancer" {
     # write-host "$here\$sut"
 
     # Import-Module (Resolve-Path ".\SeleniumWin10.psd1") -Force
-    #import-module .\SeleniumWin10.psd1 -force
-    Import-Module SeleniumWin10.psd1
+    import-module .\SeleniumWin10.psd1 -force
+    #Import-Module SeleniumWin10.psd1
 
     [string] $username = 'psymon6ng'
     [string] $password = 'Test01'
@@ -31,7 +31,7 @@ Describe "$browser Freelancer" {
     #     $script:selenium = launch_selenium -browser $browser
     # }
 
-    $selenium = launch_selenium -browser $browser -hub_host 'http://eucdevjnk02'
+    $selenium = launch_selenium -browser $browser -hub_host 'http://eucdevjnk02' -ErrorAction Stop 
     Context "Login to Freelancer" {
         It "Launch $browser" {
             $selenium | Should Not BeNullOrEmpty

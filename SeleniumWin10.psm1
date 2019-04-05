@@ -105,6 +105,8 @@ function launch_selenium {
             }
             catch {
 
+            #catch [System.SystemException] {
+              Write-Debug $_.Exception.Message
               #avoid running it in Jenkins
               if (($env:JENKINS_HOME -eq $null) -or ($env:JENKINS_HOME -eq '')) {
 
@@ -113,12 +115,12 @@ function launch_selenium {
                   #  $msbuild = 'F:\GitHub\Source\SeleniumWin10\batchFile.cmd'
                   #  start-Process -FilePath $msbuild -ArgumentList '192.168.0.7'
 
-                    Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/hub.cmd ${hub_host} ${hub_port}"
-                    Start-Sleep -Millisecond 5000
-                    Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/node.cmd ${hub_host} ${hub_port}"
+            #        Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/hub.cmd ${hub_host} ${hub_port}"
+            #        Start-Sleep -Millisecond 5000
+            #        Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/node.cmd ${hub_host} ${hub_port}"
                     #Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\hub.cmd"
                     # Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\node.cmd"
-                    Start-Sleep -Millisecond 9000
+            #        Start-Sleep -Millisecond 9000
                 }
               }
 
@@ -213,6 +215,7 @@ function launch_selenium {
               $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
               $capability.SetCapability("browserName", "firefox");
               $capability.SetCapability("platform",    "WINDOWS");
+              $capability.setCapability("acceptInsecureCerts",$true)
               #$capability.SetCapability("version",     "43.0");
               $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver($uri, $capability);
               #$selenium.Manage().Window.Maximize();
@@ -260,7 +263,7 @@ function launch_selenium {
                   $capability.SetCapability("browserName", "chrome");
                   $capability.SetCapability("platform",    "WINDOWS");
                 # $capability.SetCapability("version",     "47.0.2526.106 m (64-bit)");
-                  $driver = New-Object OpenQA.Selenium.Remote.RemoteWebDriver($selenium_grid_hub, $capability);
+                  $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver($selenium_grid_hub, $capability);
                   #$driver.Manage().Window.Maximize();
             }
             <# Internet Explorer #>
@@ -300,8 +303,12 @@ function launch_selenium {
         if ($selenium -ne $null) {
           $selenium.Close();
           $selenium.Dispose();
-        exit 1
+        
         }
+        #exit 1
+        #Write-Error "This is an error" -ErrorAction Stop
+        $PSCmdlet.WriteError($_)
+        #return
     }
 }
 
