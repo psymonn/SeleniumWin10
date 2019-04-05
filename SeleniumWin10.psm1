@@ -91,6 +91,7 @@ function launch_selenium {
         }
     }
 
+    write-host "env:JENKINS_HOME =" $env:JENKINS_HOME 
     $selenium = $null
     if ($browser -ne $null -and $browser -ne '') {
 
@@ -103,11 +104,10 @@ function launch_selenium {
                 $connection.Close()
             }
             catch {
-
-            #catch [System.SystemException] {
+              Write-Debug ('Grid {0}:{1} has not been started, trying to start it now...' -f $hub_host, $hub_port)
               Write-Debug $_.Exception.Message
               #avoid running it in Jenkins
-              write-host "env:JENKINS_HOME =" $env:JENKINS_HOME 
+              
               if (($env:JENKINS_HOME -eq $null) -or ($env:JENKINS_HOME -eq '')) {
 
                   Write-Debug 'Launching grid'
@@ -115,14 +115,12 @@ function launch_selenium {
                   #  $msbuild = 'F:\GitHub\Source\SeleniumWin10\batchFile.cmd'
                   #  start-Process -FilePath $msbuild -ArgumentList '192.168.0.7'
 
-            #        Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/hub.cmd ${hub_host} ${hub_port}"
-            #        Start-Sleep -Millisecond 5000
-            #        Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/node.cmd ${hub_host} ${hub_port}"
-                    #Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\hub.cmd"
-                    # Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k $($script:shared_assemblies_path)\node.cmd"
-            #        Start-Sleep -Millisecond 9000
+                      Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/hub.cmd ${hub_host} ${hub_port}"
+                      Start-Sleep -Millisecond 5000
+                      Start-Process -FilePath 'C:\Windows\System32\cmd.exe' -argumentList "start cmd.exe /k  ${PSScriptRoot}/grid/node.cmd ${hub_host} ${hub_port}"
+                      Start-Sleep -Millisecond 9000
                 }
-              }
+             }
 
         }
         else {
@@ -215,7 +213,7 @@ function launch_selenium {
               $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
               $capability.SetCapability("browserName", "firefox");
               $capability.SetCapability("platform",    "WINDOWS");
-              $capability.setCapability("acceptInsecureCerts",$true)
+              #$capability.setCapability("acceptInsecureCerts",$true)
               #$capability.SetCapability("version",     "43.0");
               $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver($uri, $capability);
               #$selenium.Manage().Window.Maximize();
@@ -263,7 +261,7 @@ function launch_selenium {
                   $capability.SetCapability("browserName", "chrome");
                   $capability.SetCapability("platform",    "WINDOWS");
                 # $capability.SetCapability("version",     "47.0.2526.106 m (64-bit)");
-                  $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver($selenium_grid_hub, $capability);
+                  $selenium = New-Object OpenQA.Selenium.Remote.RemoteWebDriver($uri, $capability);
                   #$driver.Manage().Window.Maximize();
             }
             <# Internet Explorer #>
@@ -272,7 +270,7 @@ function launch_selenium {
                 #$selenium.Manage().Window.Maximize();
             }
             <# Internet Explorer x64 (Selenium Grid) #>
-            "ieGrid" {
+            "IEGrid" {
                 $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
                 $capability.SetCapability("browserName", "internet explorer");
                 $capability.SetCapability("platform",    "WINDOWS");
@@ -307,7 +305,9 @@ function launch_selenium {
         }
         #exit 1
         #Write-Error "This is an error" -ErrorAction Stop
-        $PSCmdlet.WriteError($_)
+        #$PSCmdlet.WriteError($_)
+        #Write-Error "Failed!: Selenium Webdriver could not be started"
+        throw "Failed: Selenium Webdriver could not be started!`n $_"
         #return
     }
 }
