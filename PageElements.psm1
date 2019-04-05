@@ -488,7 +488,7 @@ function find_element {
   }
 
   $element = $null
-  $wait_seconds = 5
+  $wait_seconds = 10
   $wait_polling_interval = 50
 
   [OpenQA.Selenium.Support.UI.WebDriverWait]$wait = New-Object OpenQA.Selenium.Support.UI.WebDriverWait ($selenium,[System.TimeSpan]::FromSeconds($wait_seconds))
