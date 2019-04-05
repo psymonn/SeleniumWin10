@@ -255,7 +255,7 @@ function launch_selenium {
                   $selenium = New-Object OpenQA.Selenium.Chrome.ChromeDriver($options)
             }
             <# Goofle Chrome(Selenium Grid) #>
-              "GoogleChromeGrid" {
+              "ChromeGrid" {
                   $capability = New-Object OpenQA.Selenium.Remote.DesiredCapabilities;
                   $capability.SetCapability("browserName", "chrome");
                   $capability.SetCapability("platform",    "WINDOWS");
