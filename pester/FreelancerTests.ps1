@@ -1,7 +1,8 @@
 param (
-    [String]$browser="firefox"
+    [String]$browser
 )
 
+write-host "browser chosen: " $browser
 Describe "$browser Freelancer" {
     #Import-Module (Join-Path $PSScriptRoot "Selenium.psm1")
     #Import-Module (Resolve-Path ".\PSHitchhiker\PSHitchhiker.psm1") -Force

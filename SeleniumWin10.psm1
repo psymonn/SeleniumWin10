@@ -14,7 +14,7 @@
 	2015/06/22 Initial Version
 #>
 
-[string]$script:shared_assemblies_path = 'F:\Data\Git\Selenium\lib40\'
+[string]$script:shared_assemblies_path = 'C:\Data\Git\Selenium\lib40\'
 [string[]]$shared_assemblies = @(
   'WebDriver.dll',
   'WebDriver.Support.dll'
