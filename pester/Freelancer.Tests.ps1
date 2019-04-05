@@ -1,5 +1,5 @@
 param (
-    [String]$browser
+    [String]$browser="firefox"
 )
 
 write-host "browser chosen: " $browser
