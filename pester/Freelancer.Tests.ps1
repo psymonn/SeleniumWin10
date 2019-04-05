@@ -31,7 +31,7 @@ Describe "$browser Freelancer" {
     #     $script:selenium = launch_selenium -browser $browser
     # }
 
-    $selenium = launch_selenium -browser $browser
+    $selenium = launch_selenium -browser $browser -hub_host 'http://eucdevjnk02'
     Context "Login to Freelancer" {
         It "Launch $browser" {
             $selenium | Should Not BeNullOrEmpty
