@@ -31,7 +31,7 @@ Describe "$browser Freelancer" {
     #     $script:selenium = launch_selenium -browser $browser
     # }
 
-    $selenium = launch_selenium -browser $browser -hub_host 'https://eucdevjnk02' -ErrorAction Stop 
+    $selenium = launch_selenium -browser $browser -hub_host 'eucdevjnk02' -ErrorAction Stop 
     
     Context "Login to Freelancer" {
         It "Launch $browser" {
