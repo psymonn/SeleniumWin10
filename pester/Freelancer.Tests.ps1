@@ -19,8 +19,8 @@ Describe "$browser Freelancer" {
     # write-host "$here\$sut"
 
     # Import-Module (Resolve-Path ".\SeleniumWin10.psd1") -Force
-    #import-module .\SeleniumWin10.psd1 -force
-    Import-Module SeleniumWin10.psd1
+    import-module .\SeleniumWin10.psd1 -force
+    #Import-Module SeleniumWin10.psd1
 
     [string] $username = 'psymon6ng'
     [string] $password = 'Test01'

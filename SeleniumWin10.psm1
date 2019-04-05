@@ -107,6 +107,7 @@ function launch_selenium {
             #catch [System.SystemException] {
               Write-Debug $_.Exception.Message
               #avoid running it in Jenkins
+              write-host "env:JENKINS_HOME =" $env:JENKINS_HOME 
               if (($env:JENKINS_HOME -eq $null) -or ($env:JENKINS_HOME -eq '')) {
 
                   Write-Debug 'Launching grid'
