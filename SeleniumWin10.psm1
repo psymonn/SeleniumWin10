@@ -100,7 +100,6 @@ function launch_selenium {
                 $connection = (New-Object Net.Sockets.TcpClient)
                 $connection.Connect($hub_host, [int]$hub_port)
                 Write-Debug 'Grid is already running'
-
                 $connection.Close()
             }
             catch {
