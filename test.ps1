@@ -30,4 +30,4 @@ $DebugPreference = 'Continue'
 #F:\GitHub\Source\SeleniumWin10\test.ps1 "firefox" -password "Test01"
 #./pester/FreelancerTests.ps1
 #./FreelancerTests.ps1 "firefoxGrid"
-Invoke-Pester -verbose -OutputFile 'test-result.xml' -OutputFormat NUnitXml -EnableExit -Script @{ Path = 'F:\GitHub\Source\SeleniumWin10\FreelancerTests.ps1'; Parameters = @{browser = 'firefoxgrid';};}
+Invoke-Pester -verbose -OutputFile 'test-result.xml' -OutputFormat NUnitXml -EnableExit -Script @{ Path = 'F:\GitHub\Source\SeleniumWin10\Freelancer.Tests.ps1'; Parameters = @{browser = 'firefoxgrid';};}
